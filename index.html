@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>1on1 Meet 連携フロー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&family=M+PLUS+1+Code:wght@400;600&display=swap">
+<style>
+/* layout: one reading column; each phase = heading + sequence diagram + notes; decisions as a checklist table */
+:root {
+  --bg: #f6f7f5; --surface: #ffffff; --fg: #1d2420; --muted: #5b665f;
+  --line: #d9ded9; --accent: #1f7a5a; --warn: #a15c00; --warn-bg: #fff4e0;
+  --sans: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --mono: "M PLUS 1 Code", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141917; --surface: #1c2320; --fg: #e6ebe7; --muted: #9aa6a0;
+  --line: #2f3833; --accent: #5cc79d; --warn: #f0b35a; --warn-bg: #2e2516; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #141917; --surface: #1c2320; --fg: #e6ebe7; --muted: #9aa6a0;
+  --line: #2f3833; --accent: #5cc79d; --warn: #f0b35a; --warn-bg: #2e2516; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); line-height: 1.75; }
+main { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 32px 64px; display: grid; gap: 40px; }
+h1 { font-size: 1.6rem; margin: 0; text-wrap: balance; }
+h2 { font-size: 1.15rem; margin: 0 0 8px; display: flex; gap: 10px; align-items: baseline; text-wrap: balance; }
+h2 .step { font-family: var(--mono); font-size: .8rem; color: var(--accent); letter-spacing: .06em; }
+p { margin: 0; max-width: 65ch; }
+.lead { color: var(--muted); }
+.cast { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.cast span { font-size: .8rem; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; background: var(--surface); }
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; overflow-x: auto; margin-top: 12px; }
+.note { font-size: .9rem; color: var(--muted); margin-top: 10px; }
+.q { display: inline-block; font-family: var(--mono); font-size: .75rem; font-weight: 600; color: var(--warn); background: var(--warn-bg); border-radius: 4px; padding: 0 6px; margin-right: 4px; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; background: var(--surface); }
+th, td { border-bottom: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { font-size: .8rem; color: var(--muted); font-weight: 700; }
+td:first-child { font-family: var(--mono); color: var(--warn); white-space: nowrap; }
+td.rec { color: var(--accent); }
+ul { margin: 8px 0 0; padding-left: 1.2em; }
+li { max-width: 65ch; }
+</style>
+
+</head>
+<body>
+<main>
+  <header>
+    <h1>1on1 Meet 連携フロー</h1>
+    <p class="lead">コーチがアプリで Meet を発行し、生徒と1on1を行い、録画をあとから見返すまでの流れ（案）。2026-10-07 時点のたたき台です。<span class="q">Q</span>の付いた箇所は、これから決める点です。</p>
+    <div class="cast"><span>コーチ（個人の Google アカウント）</span><span>SETT アプリ</span><span>SETT の Google Workspace（会議専用 meet@ アカウント）</span><span>生徒・保護者（LINE）</span><span>運営（管理画面）</span></div>
+  </header>
+
+  <section>
+    <h2><span class="step">STEP 0</span>はじめに1回：コーチの Google 連携</h2>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor C as コーチ
+  participant A as SETTアプリ
+  participant G as Google
+  actor O as 運営
+  C->>A: 設定画面で「Google と連携」
+  A->>G: Google のログイン画面へ
+  C->>G: 自分の Google アカウントでログイン・許可
+  G-->>A: コーチの Gmail アドレス
+  A->>A: コーチの Gmail を保存
+  A-->>C: 「連携済み」と表示
+  A-->>O: 管理画面のコーチ一覧に「連携済み」
+    </pre></div>
+    <p class="note"><span class="q">Q1 決定</span>連携でもらう許可の範囲は「メールアドレスの確認だけ」です。カレンダーへの予定追加は、STEP 1 で会議専用アカウントからコーチを招待すれば、コーチのカレンダーに自動で入ります。コーチのカレンダーを直接操作する許可をもらうと、Google の審査が必要になり、預かる許可証もコーチの人数分に増えます。</p>
+  </section>
+
+  <section>
+    <h2><span class="step">STEP 1</span>1on1 の予定に Meet を発行する</h2>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor C as コーチ
+  participant A as SETTアプリ
+  participant W as Workspace（meet@）
+  actor S as 生徒・保護者
+  C->>A: 1on1 の予定で「Meetを作成」
+  A->>W: Meet 付きの予定を作成（コーチを招待）
+  A->>W: 会議を「リンクを知っていれば誰でも入れる」に設定
+  A->>W: コーチを共同主催者に指定
+  W-->>A: Meet の URL
+  A->>A: 1on1 の予定に URL を保存
+  A-->>C: アプリに URL を表示
+  W-->>C: コーチの Google カレンダーに招待が届く
+  A-->>S: アプリの予定に URL を表示
+  A-->>S: LINE で「1on1 の Meet が届きました」
+    </pre></div>
+    <p class="note"><span class="q">Q2</span>発行のタイミング：コーチがボタンを押す／1on1 の予定を作ったら自動で発行。<br><span class="q">Q3</span>LINE の通知を送る相手：生徒だけ／保護者にも。<br><span class="q">Q4</span>日時の変更やキャンセルのとき、Google カレンダーの予定と Meet をどうするか（自動で直す・消す）。</p>
+  </section>
+
+  <section>
+    <h2><span class="step">STEP 2</span>当日：1on1 を行い、録画する</h2>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor C as コーチ
+  actor S as 生徒・保護者
+  participant M as Google Meet
+  participant D as Workspace のドライブ
+  S->>M: アプリの「Meetを開く」から参加（承認待ちなし）
+  C->>M: アプリかカレンダーから参加
+  C->>M: 録画を開始（共同主催者の権限）
+  M-->>D: 終了後、録画ファイルを保存
+    </pre></div>
+    <p class="note"><span class="q">Q5</span>録画したことを生徒・保護者にどう伝え、同意をもらうか（利用規約への記載、会議の冒頭での案内など）。録画には生徒が映るので、個人情報の扱いになります。</p>
+  </section>
+
+  <section>
+    <h2><span class="step">STEP 3</span>録画を見返す</h2>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant D as Workspace のドライブ
+  participant A as SETTアプリ
+  actor O as 運営
+  actor C as コーチ
+  actor S as 生徒・保護者
+  A->>D: 新しい録画がないか確認（定期的に）
+  D-->>A: 録画ファイル
+  A->>A: 該当の1on1 に録画をひも付け
+  A-->>O: 管理画面の録画一覧に表示
+  C->>A: 生徒詳細 → 1on1 タブ → 「録画を見る」
+  S->>A: 自分の1on1 → 「録画を見る」
+  A-->>C: 再生
+  A-->>S: 再生
+    </pre></div>
+    <p class="note"><span class="q">Q6</span>録画をどこから再生するか：Google ドライブに置いたまま、アプリから再生する／アプリの動画の保存先（R2）にコピーする。以前の決定「録画はドライブに置き、R2 には取り込まない」と関係します。<br><span class="q">Q7</span>保存期間：「いつでも視聴可能」と、いまの動画のルール「保存は30日」の、どちらに合わせるか。<br><span class="q">Q8</span>見られる人：コーチ本人・生徒本人・保護者。担当コーチが替わったとき、前のコーチや新しいコーチは見られるか。</p>
+  </section>
+
+  <section>
+    <h2><span class="step">一覧</span>決めること</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>#</th><th>論点</th><th>たたき台（おすすめ）</th></tr></thead>
+      <tbody>
+        <tr><td>Q1</td><td>Google 連携でもらう許可の範囲</td><td class="rec">決定（10/7）：メールアドレスの確認だけ。カレンダーには招待で入れる</td></tr>
+        <tr><td>Q2</td><td>Meet の発行タイミング</td><td>未定</td></tr>
+        <tr><td>Q3</td><td>LINE の通知を送る相手</td><td>未定</td></tr>
+        <tr><td>Q4</td><td>変更・キャンセル時の扱い</td><td>未定</td></tr>
+        <tr><td>Q5</td><td>録画の同意・案内</td><td>未定</td></tr>
+        <tr><td>Q6</td><td>録画の再生元</td><td>未定</td></tr>
+        <tr><td>Q7</td><td>録画の保存期間</td><td>未定</td></tr>
+        <tr><td>Q8</td><td>録画を見られる人</td><td>未定</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2><span class="step">残タスク</span>運営側で確かめること</h2>
+    <ul>
+      <li>SETT として Google Workspace（Business Standard）を契約し、会議専用の meet@ アカウントを作る</li>
+      <li>運営アカウント1つで、コーチの個人 Gmail を共同主催者にできるか（別の方の Workspace で確認）</li>
+      <li>共同主催者になったコーチが録画を開始できるか</li>
+      <li>運営アカウントが不在でも、参加者だけで会議を始められるか</li>
+      <li>自動録画（会議が始まると録画が始まる設定）が使えるか</li>
+    </ul>
+  </section>
+</main>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral", fontFamily: '"Zen Kaku Gothic New", sans-serif' });
+</script>
+</body>
+</html>
