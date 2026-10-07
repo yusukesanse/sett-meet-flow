@@ -81,7 +81,7 @@ sequenceDiagram
   participant A as SETTアプリ
   participant W as Workspace（meet@）
   actor S as 生徒・保護者
-  C->>A: 1on1 の予定で「Meetを作成」
+  C->>A: 1on1 の予定を作成（Meet は自動で発行）
   A->>W: Meet 付きの予定を作成（コーチを招待）
   A->>W: 会議を「リンクを知っていれば誰でも入れる」に設定
   A->>W: コーチを共同主催者に指定
@@ -92,7 +92,7 @@ sequenceDiagram
   A-->>S: アプリの予定に URL を表示
   A-->>S: LINE で「1on1 の Meet が届きました」
     </pre></div>
-    <p class="note"><span class="q">Q2</span>発行のタイミング：コーチがボタンを押す／1on1 の予定を作ったら自動で発行。<br><span class="q">Q3</span>LINE の通知を送る相手：生徒だけ／保護者にも。<br><span class="q">Q4</span>日時の変更やキャンセルのとき、Google カレンダーの予定と Meet をどうするか（自動で直す・消す）。</p>
+    <p class="note"><span class="q">Q2 決定</span>1on1 の予定を作ったら自動で発行する。失敗したときだけ「Meetを作成」ボタンで作り直す（対面の1on1は基本なし）。<br><span class="q">Q3</span>LINE の通知を送る相手：生徒だけ／保護者にも。<br><span class="q">Q4</span>日時の変更やキャンセルのとき、Google カレンダーの予定と Meet をどうするか（自動で直す・消す）。</p>
   </section>
 
   <section>
@@ -140,7 +140,7 @@ sequenceDiagram
       <thead><tr><th>#</th><th>論点</th><th>たたき台（おすすめ）</th></tr></thead>
       <tbody>
         <tr><td>Q1</td><td>Google 連携でもらう許可の範囲</td><td class="rec">決定（10/7）：メールアドレスの確認だけ。カレンダーには招待で入れる</td></tr>
-        <tr><td>Q2</td><td>Meet の発行タイミング</td><td>未定</td></tr>
+        <tr><td>Q2</td><td>Meet の発行タイミング</td><td class="rec">決定（10/7）：1on1 の予定を作ったら自動で発行。失敗時は「Meetを作成」ボタンで作り直し（対面は基本なし）</td></tr>
         <tr><td>Q3</td><td>LINE の通知を送る相手</td><td>未定</td></tr>
         <tr><td>Q4</td><td>変更・キャンセル時の扱い</td><td>未定</td></tr>
         <tr><td>Q5</td><td>録画の同意・案内</td><td>未定</td></tr>
