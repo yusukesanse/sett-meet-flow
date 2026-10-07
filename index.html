@@ -48,7 +48,7 @@ li { max-width: 65ch; }
 <main>
   <header>
     <h1>1on1 Meet 連携フロー</h1>
-    <p class="lead">コーチがアプリで Meet を発行し、生徒と1on1を行い、録画をあとから見返すまでの流れ（案）。2026-10-07 時点のたたき台です。<span class="q">Q</span>の付いた箇所は、これから決める点です。</p>
+    <p class="lead">生徒が 1on1 を予約し、Meet が自動で発行され、1on1 を行い、録画をあとから見返すまでの流れ（案）。2026-10-07 時点のたたき台です。<span class="q">Q</span>の付いた箇所は、これから決める点です。</p>
     <div class="cast"><span>コーチ（個人の Google アカウント）</span><span>SETT アプリ</span><span>SETT の Google Workspace（会議専用 meet@ アカウント）</span><span>生徒・保護者（LINE）</span><span>運営（管理画面）</span></div>
   </header>
 
@@ -73,26 +73,30 @@ sequenceDiagram
   </section>
 
   <section>
-    <h2><span class="step">STEP 1</span>1on1 の予定に Meet を発行する</h2>
+    <h2><span class="step">STEP 1</span>生徒が 1on1 を予約する（Meet は自動で発行）</h2>
+    <p class="note">1on1 の日時を決めるのは生徒です。Figma の「S-33 1on1の予約」（ホットペッパー型）が元の案です。いまのアプリは「コーチが 1on1 を登録する」作りなので、予約の仕組みは新しく作ります。</p>
     <div class="diagram"><pre class="mermaid">
 sequenceDiagram
   autonumber
   actor C as コーチ
   participant A as SETTアプリ
   participant W as Workspace（meet@）
-  actor S as 生徒・保護者
-  C->>A: 1on1 の予定を作成（Meet は自動で発行）
+  actor S as 生徒
+  C->>A: 予定画面で「対応できる時間」を登録（いまある画面）
+  S->>A: 「1on1を予約する」を開く
+  A-->>S: 今月あと何回予約できるか＋空いている時間
+  S->>A: 日と時間を選んで「この時間で予約する」
+  A->>A: 回数と重なりを確認して、1on1 の予定を作る
   A->>W: Meet 付きの予定を作成（コーチを招待）
-  A->>W: 会議を「リンクを知っていれば誰でも入れる」に設定
-  A->>W: コーチを共同主催者に指定
+  A->>W: 誰でも入れる設定・コーチを共同主催者に
   W-->>A: Meet の URL
-  A->>A: 1on1 の予定に URL を保存
-  A-->>C: アプリに URL を表示
-  W-->>C: コーチの Google カレンダーに招待が届く
-  A-->>S: アプリの予定に URL を表示
-  A-->>S: LINE で「1on1 の Meet が届きました」
+  A-->>S: 予約完了。予定と「Meetを開く」を表示
+  A-->>C: LINE「〇〇さんから 1on1 の予約が入りました」
+  W-->>C: コーチの Google カレンダーに予定が入る
+  A-->>S: 直前に LINE「まもなく 1on1 です」
+  A-->>C: 直前に LINE「まもなく 1on1 です」
     </pre></div>
-    <p class="note"><span class="q">Q2 決定</span>1on1 の予定を作ったら自動で発行する。失敗したときだけ「Meetを作成」ボタンで作り直す（対面の1on1は基本なし）。<br><span class="q">Q3</span>LINE の通知を送る相手：生徒だけ／保護者にも。<br><span class="q">Q4</span>日時の変更やキャンセルのとき、Google カレンダーの予定と Meet をどうするか（自動で直す・消す）。</p>
+    <p class="note"><span class="q">Q2 決定</span>予定ができたら Meet を自動で発行する。失敗したときだけ「Meetを作成」ボタンで作り直す（対面の1on1は基本なし）。<br><span class="q">B1〜B7</span>予約の決めごと（下の一覧）。<br><span class="q">Q3</span>通知（下の一覧）。<br><span class="q">Q4</span>予約の変更・キャンセルのとき、Google カレンダーの予定と Meet をどうするか（自動で直す・消す）。</p>
   </section>
 
   <section>
@@ -141,7 +145,14 @@ sequenceDiagram
       <tbody>
         <tr><td>Q1</td><td>Google 連携でもらう許可の範囲</td><td class="rec">決定（10/7）：メールアドレスの確認だけ。カレンダーには招待で入れる</td></tr>
         <tr><td>Q2</td><td>Meet の発行タイミング</td><td class="rec">決定（10/7）：1on1 の予定を作ったら自動で発行。失敗時は「Meetを作成」ボタンで作り直し（対面は基本なし）</td></tr>
-        <tr><td>Q3</td><td>LINE の通知を送る相手</td><td>未定</td></tr>
+        <tr><td>B1</td><td>予約できる人</td><td>未定（生徒だけ／保護者も代わりに予約できる）</td></tr>
+        <tr><td>B2</td><td>1回の長さ</td><td>未定（Figma の案は45分）</td></tr>
+        <tr><td>B3</td><td>どのコーチの枠を出すか</td><td>未定（担当コーチだけ／担当外も。パーソナルトレーナーの予約は別の仕組み、という Figma のメモあり）</td></tr>
+        <tr><td>B4</td><td>いつまでに予約できるか</td><td>未定（例：何時間前まで、何日先まで）</td></tr>
+        <tr><td>B5</td><td>変更・キャンセルのルール</td><td>未定（何時間前まで、回数は戻るか、コーチ側の都合のとき）</td></tr>
+        <tr><td>B6</td><td>回数の上限</td><td>未定（プランの回数、使い切ったら追加枠）</td></tr>
+        <tr><td>B7</td><td>いまの「コーチが 1on1 を登録する」機能</td><td>未定（残す／やめる）</td></tr>
+        <tr><td>Q3</td><td>通知</td><td>たたき台：予約が入ったらコーチに LINE。直前リマインドは生徒とコーチに。予約した本人には画面で完了を見せる</td></tr>
         <tr><td>Q4</td><td>変更・キャンセル時の扱い</td><td>未定</td></tr>
         <tr><td>Q5</td><td>録画の同意・案内</td><td>未定</td></tr>
         <tr><td>Q6</td><td>録画の再生元</td><td>未定</td></tr>
